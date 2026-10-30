@@ -769,6 +769,15 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
 
     logger.info("Bot ishga tushdi. Users: %d", len(USERS))
+
+    # Python 3.14 no longer creates a main-thread event loop implicitly.
+    # Create and register one before PTB starts polling. This also keeps the
+    # startup path compatible with older python-telegram-bot releases.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
